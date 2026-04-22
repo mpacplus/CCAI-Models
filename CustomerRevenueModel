@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Revenue Model — CloudContactAI</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f2; color: #1a1a18; padding: 24px; min-height: 100vh; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #73726c; margin-bottom: 24px; }
+  .st { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #888780; margin-bottom: 10px; }
+  .card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 1rem 1.25rem; }
+  .mc { background: #f5f5f2; border-radius: 8px; padding: .875rem 1rem; }
+  .ml { font-size: 12px; color: #73726c; margin-bottom: 4px; }
+  .mv { font-size: 20px; font-weight: 500; color: #1a1a18; }
+  .ms { font-size: 12px; color: #888780; margin-top: 2px; }
+  .g4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 14px; }
+  .g5 { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; margin-bottom: 14px; }
+  .g2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .ri { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 0.5px solid rgba(0,0,0,0.08); font-size: 13px; }
+  .ri:last-child { border-bottom: none; }
+  .rk { color: #73726c; }
+  .rv { font-weight: 500; color: #1a1a18; }
+  .hl { border-left: 2px solid #378ADD; background: #e6f1fb; border-radius: 0 8px 8px 0; padding: 10px 12px; margin-top: 10px; }
+  .ht { font-size: 12px; font-weight: 500; color: #185FA5; }
+  .hb { font-size: 12px; color: #73726c; line-height: 1.5; margin-top: 2px; }
+  .ctrl { margin-bottom: 12px; }
+  .ctrl:last-child { margin-bottom: 0; }
+  .ctrl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .ctrl-label span:first-child { font-size: 13px; color: #73726c; }
+  .ctrl-label span:last-child { font-size: 14px; font-weight: 500; color: #1a1a18; }
+  .ctrl input[type=range] { width: 100%; display: block; accent-color: #185FA5; }
+  .divider { border: none; border-top: 0.5px solid rgba(0,0,0,0.08); margin: 10px 0; }
+  .section-gap { margin-top: 16px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 8px; }
+  .badge-once { background: #faeeda; color: #633806; }
+  .badge-recur { background: #eaf3de; color: #27500a; }
+  .info-border { border: 0.5px solid #378ADD !important; }
+  .info-color { color: #185FA5 !important; }
+  .success-color { color: #3B6D11 !important; }
+  section { margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Customer Revenue Model</h1>
+<p class="subtitle">CloudContactAI — SMS, Email &amp; Voice opportunity model · Adjust sliders to model scenarios</p>
+
+<section>
+  <p class="st">Core assumptions</p>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Clients</span><span id="oClients">500</span></div>
+        <input type="range" id="clients" min="50" max="2000" step="50" value="500" oninput="go()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Segments / client / month</span><span id="oSegs">2,000</span></div>
+        <input type="range" id="segs" min="100" max="20000" step="100" value="2000" oninput="go()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Rate per segment</span><span id="oCpp">$0.030</span></div>
+        <input type="range" id="cpp" min="0.005" max="0.10" step="0.005" value="0.03" oninput="go()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Email revenue / client / month</span><span id="oEmailRate">$5</span></div>
+        <input type="range" id="emailRate" min="1" max="50" step="1" value="5" oninput="go()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Voice revenue / client / month</span><span id="oVoiceRate">$8</span></div>
+        <input type="range" id="voiceRate" min="1" max="100" step="1" value="8" oninput="go()">
+      </div>
+    </div>
+    <div class="card">
+      <p style="font-size:12px;color:#73726c;margin-bottom:10px;line-height:1.5">Registration fees split into <span class="badge badge-once">one-time</span> setup charges and <span class="badge badge-recur">recurring</span> monthly fees that add directly to MRR.</p>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Brand reg fee / client <span class="badge badge-once">one-time</span></span><span id="oBrandFee">$4.00</span></div>
+        <input type="range" id="brandFee" min="0" max="20" step="0.5" value="4" oninput="go()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Campaign setup fee / client <span class="badge badge-once">one-time</span></span><span id="oCampFee">$10.00</span></div>
+        <input type="range" id="campFee" min="0" max="40" step="0.5" value="10" oninput="go()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Phone number fee / client / mo <span class="badge badge-recur">recurring</span></span><span id="oPhoneFee">$1.00</span></div>
+        <input type="range" id="phoneFee" min="0" max="10" step="0.25" value="1" oninput="go()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Campaign maint. fee / client / mo <span class="badge badge-recur">recurring</span></span><span id="oCampMaint">$2.00</span></div>
+        <input type="range" id="campMaint" min="0" max="20" step="0.5" value="2" oninput="go()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label"><span>Platform / CSP fee / client / mo <span class="badge badge-recur">recurring</span></span><span id="oPlatform">$0.00</span></div>
+        <input type="range" id="platform" min="0" max="20" step="0.5" value="0" oninput="go()">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="st">Full MRR summary — messaging + recurring registration fees</p>
+  <div class="g5">
+    <div class="mc"><div class="ml">SMS MRR</div><div class="mv" id="smsMrr">$30,000</div><div class="ms">segments</div></div>
+    <div class="mc"><div class="ml">Email MRR</div><div class="mv" id="emailMrr">$2,500</div><div class="ms">email</div></div>
+    <div class="mc"><div class="ml">Voice MRR</div><div class="mv" id="voiceMrr">$4,000</div><div class="ms">voice</div></div>
+    <div class="mc"><div class="ml">Reg fees MRR</div><div class="mv success-color" id="regMrr">$1,500</div><div class="ms">phone + maint + CSP</div></div>
+    <div class="mc info-border">
+      <div class="ml">Total MRR</div>
+      <div class="mv info-color" id="totalMrr">$38,000</div>
+      <div class="ms" id="totalArr">$456,000 ARR</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <p class="st">Revenue by channel (monthly)</p>
+      <div style="position:relative;height:180px"><canvas id="barChart" role="img" aria-label="Monthly revenue by channel including recurring registration fees">SMS, Email, Voice, Reg fees MRR.</canvas></div>
+    </div>
+    <div class="card">
+      <p class="st">SMS MRR sensitivity</p>
+      <div style="position:relative;height:155px"><canvas id="lineChart" role="img" aria-label="SMS MRR by client count at current and 2.5x volume">Sensitivity.</canvas></div>
+      <div style="display:flex;gap:16px;font-size:12px;color:#73726c;margin-top:8px">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:2px;background:#185FA5;display:inline-block"></span>Current volume</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:2px;background:#0F6E56;display:inline-block;border-top:2px dashed #0F6E56"></span>2.5× volume</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="g2">
+    <div class="card">
+      <p class="st">Key figures</p>
+      <div class="g2">
+        <div>
+          <div class="ri"><span class="rk">SMS rev / client / mo</span><span class="rv" id="kfPerClient">$60.00</span></div>
+          <div class="ri"><span class="rk">Rev / 1,000 segments</span><span class="rv" id="kfPer1k">$30.00</span></div>
+          <div class="ri"><span class="rk">Reg fees MRR / client</span><span class="rv" id="kfRegPerClient">$3.00</span></div>
+          <div class="ri" style="border-bottom:none"><span class="rk">SMS MRR</span><span class="rv" id="kfSmsMrr">$30,000</span></div>
+        </div>
+        <div>
+          <div class="ri"><span class="rk">SMS ARR</span><span class="rv" id="kfSmsArr">$360,000</span></div>
+          <div class="ri"><span class="rk">Total MRR</span><span class="rv" id="kfTotalMrr">$38,000</span></div>
+          <div class="ri"><span class="rk">Total ARR</span><span class="rv" id="kfTotalArr">$456,000</span></div>
+          <div class="ri" style="border-bottom:none"><span class="rk">Reg fees ARR</span><span class="rv" id="kfRegArr">$18,000</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="st">Registration revenue breakdown</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0 8px;border-bottom:0.5px solid rgba(0,0,0,0.08)">
+        <span style="font-size:12px;font-weight:500;color:#73726c">One-time (day 1)</span>
+        <span class="badge badge-once" style="font-size:12px" id="regOnce">$7,000</span>
+      </div>
+      <div class="ri"><span class="rk">Brand registration</span><span class="rv" id="rb1">$2,000</span></div>
+      <div class="ri"><span class="rk">Campaign setup</span><span class="rv" id="rb2">$5,000</span></div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0 8px;border-bottom:0.5px solid rgba(0,0,0,0.08)">
+        <span style="font-size:12px;font-weight:500;color:#73726c">Recurring (monthly)</span>
+        <span class="badge badge-recur" style="font-size:12px" id="regRecur">$1,500</span>
+      </div>
+      <div class="ri"><span class="rk">Phone number fees</span><span class="rv" id="rb3">$500</span></div>
+      <div class="ri"><span class="rk">Campaign maintenance</span><span class="rv" id="rb4">$1,000</span></div>
+      <div class="ri"><span class="rk">Platform / CSP fees</span><span class="rv" id="rb5">$0</span></div>
+      <div class="hl">
+        <div class="ht">12-month registration revenue</div>
+        <div class="hb" id="reg12mo">$25,000 — day-1 setup + 12 months of recurring fees</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var bc=null, lc=null, ready=false;
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+
+function go(){
+  var cl = +document.getElementById('clients').value;
+  var sg = +document.getElementById('segs').value;
+  var cp = +document.getElementById('cpp').value;
+  var er = +document.getElementById('emailRate').value;
+  var vr = +document.getElementById('voiceRate').value;
+  var bf = +document.getElementById('brandFee').value;
+  var cf = +document.getElementById('campFee').value;
+  var pf = +document.getElementById('phoneFee').value;
+  var cm = +document.getElementById('campMaint').value;
+  var pl = +document.getElementById('platform').value;
+
+  document.getElementById('oClients').textContent   = cl.toLocaleString();
+  document.getElementById('oSegs').textContent      = sg.toLocaleString();
+  document.getElementById('oCpp').textContent       = '$'+cp.toFixed(3);
+  document.getElementById('oEmailRate').textContent = '$'+er;
+  document.getElementById('oVoiceRate').textContent = '$'+vr;
+  document.getElementById('oBrandFee').textContent  = '$'+bf.toFixed(2);
+  document.getElementById('oCampFee').textContent   = '$'+cf.toFixed(2);
+  document.getElementById('oPhoneFee').textContent  = '$'+pf.toFixed(2);
+  document.getElementById('oCampMaint').textContent = '$'+cm.toFixed(2);
+  document.getElementById('oPlatform').textContent  = '$'+pl.toFixed(2);
+
+  var smsMrr   = cl*sg*cp;
+  var emailMrr = cl*er;
+  var voiceMrr = cl*vr;
+  var recurReg = cl*(pf+cm+pl);
+  var total    = smsMrr+emailMrr+voiceMrr+recurReg;
+  var onceReg  = cl*(bf+cf);
+
+  document.getElementById('smsMrr').textContent   = fmt(smsMrr);
+  document.getElementById('emailMrr').textContent = fmt(emailMrr);
+  document.getElementById('voiceMrr').textContent = fmt(voiceMrr);
+  document.getElementById('regMrr').textContent   = fmt(recurReg);
+  document.getElementById('totalMrr').textContent = fmt(total);
+  document.getElementById('totalArr').textContent = fmt(total*12)+' ARR';
+
+  document.getElementById('kfPerClient').textContent    = '$'+(sg*cp).toFixed(2);
+  document.getElementById('kfPer1k').textContent        = '$'+(cp*1000).toFixed(2);
+  document.getElementById('kfRegPerClient').textContent = '$'+(pf+cm+pl).toFixed(2);
+  document.getElementById('kfSmsMrr').textContent       = fmt(smsMrr);
+  document.getElementById('kfSmsArr').textContent       = fmt(smsMrr*12);
+  document.getElementById('kfTotalMrr').textContent     = fmt(total);
+  document.getElementById('kfTotalArr').textContent     = fmt(total*12);
+  document.getElementById('kfRegArr').textContent       = fmt(recurReg*12);
+
+  document.getElementById('regOnce').textContent  = fmt(onceReg);
+  document.getElementById('rb1').textContent      = fmt(cl*bf);
+  document.getElementById('rb2').textContent      = fmt(cl*cf);
+  document.getElementById('regRecur').textContent = fmt(recurReg);
+  document.getElementById('rb3').textContent      = fmt(cl*pf);
+  document.getElementById('rb4').textContent      = fmt(cl*cm);
+  document.getElementById('rb5').textContent      = fmt(cl*pl);
+  document.getElementById('reg12mo').textContent  = fmt(onceReg+recurReg*12)+' — day-1 setup + 12 months of recurring fees';
+
+  if(ready){
+    bc.data.datasets[0].data = [Math.round(smsMrr),Math.round(emailMrr),Math.round(voiceMrr),Math.round(recurReg)];
+    bc.update('none');
+    var counts = [100,250,500,750,1000,1500,2000];
+    lc.data.datasets[0].data = counts.map(function(c){ return Math.round(c*sg*cp); });
+    lc.data.datasets[1].data = counts.map(function(c){ return Math.round(c*sg*2.5*cp); });
+    lc.update('none');
+  }
+}
+
+function initCharts(){
+  if(ready) return;
+  ready = true;
+  var counts = [100,250,500,750,1000,1500,2000];
+  var tOpts  = { color:'#888780', font:{ size:11 } };
+  var grid   = { color:'rgba(136,135,128,0.15)' };
+
+  bc = new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{
+      labels:['SMS','Email','Voice','Reg fees'],
+      datasets:[{ data:[30000,2500,4000,1500], backgroundColor:['#185FA5','#0F6E56','#854F0B','#3B6D11'], borderRadius:4, borderSkipped:false }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{ legend:{ display:false } },
+      scales:{ x:{ grid:{ display:false }, ticks:tOpts },
+               y:{ grid:grid, ticks:{ ...tOpts, callback:function(v){ return '$'+(v>=1000?Math.round(v/1000)+'k':v); } } } } }
+  });
+
+  lc = new Chart(document.getElementById('lineChart'),{
+    type:'line',
+    data:{
+      labels: counts.map(function(c){ return c>=1000?(c/1000)+'k':String(c); }),
+      datasets:[
+        { data:counts.map(function(c){ return Math.round(c*2000*0.03); }), borderColor:'#185FA5', backgroundColor:'rgba(24,95,165,0.07)', fill:true, tension:0.35, pointRadius:2, borderWidth:2 },
+        { data:counts.map(function(c){ return Math.round(c*5000*0.03); }), borderColor:'#0F6E56', backgroundColor:'rgba(15,110,86,0.05)', fill:true, tension:0.35, pointRadius:2, borderWidth:2, borderDash:[5,3] }
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{ legend:{ display:false } },
+      scales:{ x:{ grid:{ display:false }, ticks:{ ...tOpts, maxRotation:0 }, title:{ display:true, text:'clients', color:'#888780', font:{ size:11 } } },
+               y:{ grid:grid, ticks:{ ...tOpts, callback:function(v){ return '$'+(v>=1000?Math.round(v/1000)+'k':v); } } } } }
+  });
+}
+
+var poll=0;
+function wait(){ if(typeof Chart!=='undefined'){ initCharts(); } else if(poll<30){ poll++; setTimeout(wait,150); } }
+wait();
+</script>
+</body>
+</html>
